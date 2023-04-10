@@ -26,8 +26,10 @@ class SignUpController {
                 }
             })
 
+            const { password: _, ...data } = user
+
             res.status(201).json({
-                data: user,
+                data: data,
                 message: 'Usuário criado'
             })
 

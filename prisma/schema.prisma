@@ -8,11 +8,23 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
+  id         Int        @id @unique @default(autoincrement())
   name       String
-  email      String   @unique
+  email      String     @unique
   password   String
-  created_at DateTime @default(now())
+  created_at DateTime   @default(now())
+  UserToken  UserToken?
 
   @@map("users")
+}
+
+model UserToken {
+  id            Int      @id @default(autoincrement())
+  refresh_token String   @unique
+  user_id       Int      @unique
+  user          User     @relation(fields: [user_id], references: [id])
+  created_at    DateTime @default(now())
+  expires_in    DateTime
+
+  @@map("users_token")
 }
