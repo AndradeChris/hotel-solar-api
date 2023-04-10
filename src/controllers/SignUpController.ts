@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prismaClient from "../database/prismaClient";
-import { PrismaClientKnownRequestError, PrismaClientUnknownRequestError, PrismaClientValidationError } from "@prisma/client/runtime";
+import bcrypt from "bcrypt"
 
 class SignUpController {
 
@@ -8,19 +8,21 @@ class SignUpController {
         try {
             const { name, email, password } = req.body
 
-            const alredyUser = await prismaClient.user.findUnique({
+            const userExist = await prismaClient.user.findUnique({
                 where: { email }
             })
 
-            if (alredyUser !== null) {
+            if (userExist) {
                 throw new Error("Email já cadastrado")
             }
+
+            const hashPassword = await bcrypt.hash(password, 10)
 
             const user = await prismaClient.user.create({
                 data: {
                     name,
                     email,
-                    password
+                    password: hashPassword
                 }
             })
 
