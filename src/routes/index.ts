@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 import signUp from './signUp'
 import login from './login'
+import user from './user'
 
 
 const routes = (app) => {
@@ -11,7 +12,8 @@ const routes = (app) => {
     app.use(
         express.json(),
         signUp,
-        login
+        login,
+        user
     )
 }
 

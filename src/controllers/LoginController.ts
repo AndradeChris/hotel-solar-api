@@ -1,13 +1,20 @@
 import { Request, Response } from "express";
 import prismaClient from "../database/prismaClient";
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
+import { createToken } from "../procedures/jwtToken";
+import { createRefreshToken } from "../procedures/jwtRefreshoken";
+import dayjs from "dayjs"
+import { verify } from "jsonwebtoken";
+
+export interface IVerifyTokenPayload {
+    id: number,
+}
 
 class LoginController {
 
     async login(req: Request, res: Response) {
 
-        const messageError = "Erro ao logar usuário"
+        const messageError = "Email ou senha inválido"
 
         try {
             const { email, password } = req.body
@@ -16,42 +23,35 @@ class LoginController {
                 where: { email }
             })
 
-            const userRefreshTokenExist = await prismaClient.userToken.findFirst({
-                where: { user_id: userExist?.id }
-            })
-
-            if (userRefreshTokenExist) {
-                await prismaClient.userToken.delete({
-                    where: { id: userRefreshTokenExist.id }
-                })
-            }
-
             if (!userExist) {
                 throw new Error(messageError)
             }
 
+            const userTokenExist = await prismaClient.userToken.findFirst({
+                where: { user_id: userExist.id }
+            })
+
+            if (userTokenExist) {
+                await prismaClient.userToken.delete({
+                    where: { id: userTokenExist.id }
+                })
+            }
+
             const decryptPass = await bcrypt.compare(password, userExist!.password)
 
-            if (userExist?.email !== email && !decryptPass) {
+            if (!decryptPass) {
                 throw new Error(messageError)
             }
 
-            const payloadJWT = {
-                id: userExist.id,
-                name: userExist.name
-            }
+            const token = createToken({ id: userExist.id })
 
-            const token = jwt.sign(payloadJWT, process.env.JWT_SECRET!, { expiresIn: "10m" })
-
-            const refreshToken = jwt.sign(payloadJWT, process.env.JWT_REFRESH_SECRET!, { expiresIn: "15m" })
-
-            const expiresRefreshToken = new Date(new Date().getTime() + (5 * 24 * 60 * 60 * 1000))
+            const refreshToken = createRefreshToken({ id: userExist.id })
 
             await prismaClient.userToken.create({
                 data: {
                     refresh_token: refreshToken,
                     user_id: userExist.id,
-                    expires_in: expiresRefreshToken,
+                    expires_in: dayjs().add(3, "h").unix()
                 }
             })
 
@@ -78,6 +78,68 @@ class LoginController {
     }
 
     async refreshToken(req: Request, res: Response) {
+        try {
+            const { refreshToken } = req.body
+
+            if (!refreshToken) {
+                throw new Error()
+            }
+
+            const resultRefreshToken = verify(refreshToken, process.env.JWT_REFRESH_SECRET!)
+
+            if (!resultRefreshToken) {
+                throw new Error()
+            }
+
+            const { id: user_id, } = resultRefreshToken as IVerifyTokenPayload
+
+            const verifyUserToken = await prismaClient.userToken.findFirst({
+                where: { user_id, refresh_token: refreshToken }
+            })
+
+            if (!verifyUserToken) {
+                throw new Error()
+            }
+
+            const refreshTokenExpired = dayjs().isAfter(dayjs.unix(verifyUserToken.expires_in))
+
+            if (refreshTokenExpired) {
+                throw new Error()
+            }
+
+            const newToken = createToken({ id: user_id })
+
+            const newRefreshToken = createRefreshToken({ id: user_id })
+
+            await prismaClient.userToken.delete({
+                where: { user_id }
+            })
+
+            await prismaClient.userToken.create({
+                data: {
+                    refresh_token: newRefreshToken,
+                    user_id,
+                    expires_in: dayjs().add(3, "h").unix()
+                }
+            })
+
+            res.status(200).json({
+                message: "Sucesso ao solicar refresh token",
+                data: {
+                    token: newToken,
+                    refreshToken: newRefreshToken
+                }
+            })
+
+
+        } catch (error) {
+
+            res.status(400).json({
+                error,
+                message: "Não autorizado"
+            })
+
+        }
     }
 
 }
