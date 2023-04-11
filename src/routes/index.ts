@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import signUp from './signUp'
 import login from './login'
 import user from './user'
+import booking from './booking'
 
 
 const routes = (app) => {
@@ -13,7 +14,8 @@ const routes = (app) => {
         express.json(),
         signUp,
         login,
-        user
+        user,
+        booking
     )
 }
 

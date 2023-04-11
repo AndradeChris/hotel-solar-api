@@ -14,6 +14,7 @@ model User {
   password   String
   created_at DateTime   @default(now())
   UserToken  UserToken?
+  Booking    Booking[]
 
   @@map("users")
 }
@@ -26,4 +27,39 @@ model UserToken {
   expires_in    Int
 
   @@map("users_token")
+}
+
+model Booking {
+  id                 Int                @id @default(autoincrement())
+  reserve_id         String             @default(uuid())
+  user               User               @relation(fields: [user_id], references: [id])
+  user_id            Int
+  room               Room               @relation(fields: [room_id], references: [id])
+  room_id            Int
+  check_in           DateTime
+  check_out          DateTime
+  amount_people      Int
+  created_at         DateTime           @default(now())
+  additional_service AdditionalService?
+
+  @@map("bookings")
+}
+
+model Room {
+  id            Int       @id @default(autoincrement())
+  type          String    @unique
+  price         Decimal
+  avaible_units Int
+  Booking       Booking[]
+
+  @@map("rooms")
+}
+
+model AdditionalService {
+  id         Int     @id @default(autoincrement())
+  services   String  @db.Text()
+  booking    Booking @relation(fields: [booking_id], references: [id])
+  booking_id Int     @unique
+
+  @@map("aditional_services")
 }
