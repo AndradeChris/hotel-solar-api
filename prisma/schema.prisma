@@ -19,12 +19,11 @@ model User {
 }
 
 model UserToken {
-  id            Int      @id @default(autoincrement())
-  refresh_token String   @unique
-  user_id       Int      @unique
-  user          User     @relation(fields: [user_id], references: [id])
-  created_at    DateTime @default(now())
-  expires_in    DateTime
+  id            Int    @id @default(autoincrement())
+  refresh_token String @unique
+  user_id       Int    @unique
+  user          User   @relation(fields: [user_id], references: [id])
+  expires_in    Int
 
   @@map("users_token")
 }
