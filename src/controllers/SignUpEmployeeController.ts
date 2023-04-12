@@ -16,8 +16,6 @@ class SignUpEmployeeController {
                 throw new Error("Email já cadastrado")
             }
 
-            console.log('chegou aqui')
-
             const hashPassword = await bcrypt.hash(password, 10)
 
             const worker = await prismaClient.worker.create({
