@@ -17,6 +17,16 @@ class BookingController {
 
             const { id: user_id, } = resultToken as IVerifyTokenPayload
 
+            const availableRooms = await prismaClient.room.findFirst({
+                where: {
+                    id: roomId
+                }
+            })
+
+            if (availableRooms!.avaible_units <= 0) {
+                throw new Error(`Quantidade máxima de quarto do tipo ${availableRooms?.type} ocupado`)
+            }
+
             const createBooking = await prismaClient.booking.create({
                 data: {
                     user_id,
@@ -35,6 +45,15 @@ class BookingController {
                     }
                 })
             }
+
+            await prismaClient.room.update({
+                data: {
+                    avaible_units: availableRooms!.avaible_units - 1
+                },
+                where: {
+                    id: availableRooms!.id
+                }
+            })
 
             res.status(201).send({
                 data: {
