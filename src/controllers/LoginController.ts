@@ -8,6 +8,7 @@ import { verify } from "jsonwebtoken";
 
 export interface IVerifyTokenPayload {
     id: number,
+    role?: number
 }
 
 class LoginController {

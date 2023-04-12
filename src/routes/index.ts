@@ -3,7 +3,8 @@ import signUp from './signUp'
 import login from './login'
 import user from './user'
 import booking from './booking'
-
+import workerSignUp from './workerSignUp'
+import workerLogin from './workerLogin'
 
 const routes = (app) => {
     app.route('/').get((req: Request, res: Response) => {
@@ -15,7 +16,9 @@ const routes = (app) => {
         signUp,
         login,
         user,
-        booking
+        booking,
+        workerSignUp,
+        workerLogin
     )
 }
 

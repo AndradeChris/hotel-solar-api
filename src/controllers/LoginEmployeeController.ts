@@ -8,7 +8,7 @@ import { verify } from "jsonwebtoken";
 
 export interface IVerifyTokenPayload {
     id: number,
-    role: number
+    role?: number
 }
 
 class LoginEmployeeController {
@@ -33,7 +33,7 @@ class LoginEmployeeController {
             })
 
             if (workerTokenExist) {
-                await prismaClient.userToken.delete({
+                await prismaClient.workerToken.delete({
                     where: { id: workerTokenExist.id }
                 })
             }

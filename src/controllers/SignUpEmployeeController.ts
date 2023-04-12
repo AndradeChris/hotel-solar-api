@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import prismaClient from "../database/prismaClient";
 import bcrypt from "bcrypt"
 
-class SignUpController {
+class SignUpEmployeeController {
 
     async create(req: Request, res: Response) {
         try {
@@ -15,6 +15,8 @@ class SignUpController {
             if (workerExist) {
                 throw new Error("Email já cadastrado")
             }
+
+            console.log('chegou aqui')
 
             const hashPassword = await bcrypt.hash(password, 10)
 
@@ -46,4 +48,4 @@ class SignUpController {
 
 }
 
-export default SignUpController
+export default SignUpEmployeeController
