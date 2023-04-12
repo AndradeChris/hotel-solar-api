@@ -2,6 +2,7 @@ import { sign } from "jsonwebtoken"
 
 interface IPayloadJWT {
     id: number,
+    role?: number
 }
 
 function createToken(payload: IPayloadJWT) {

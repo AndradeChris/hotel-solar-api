@@ -2,6 +2,7 @@ import { sign, verify } from "jsonwebtoken"
 
 type PayloadRefreshJWT = {
     id: number,
+    role?: number
 }
 
 function createRefreshToken(payload: PayloadRefreshJWT) {
