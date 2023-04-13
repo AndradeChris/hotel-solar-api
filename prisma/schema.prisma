@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @unique @default(autoincrement())
-  name       String
-  email      String     @unique
-  password   String
-  created_at DateTime   @default(now())
-  UserToken  UserToken?
-  Booking    Booking[]
+  id                Int                 @id @unique @default(autoincrement())
+  name              String
+  email             String              @unique
+  password          String
+  created_at        DateTime            @default(now())
+  UserToken         UserToken?
+  Booking           Booking[]
+  CommentAvaliation CommentAvaliation[]
 
   @@map("users")
 }
@@ -33,6 +34,7 @@ model Booking {
   id                 Int                @id @default(autoincrement())
   reserve_id         String             @default(uuid())
   active_stats       Boolean            @default(false)
+  checkout_stats     Boolean            @default(false)
   user               User               @relation(fields: [user_id], references: [id])
   user_id            Int
   room               Room               @relation(fields: [room_id], references: [id])
@@ -47,11 +49,12 @@ model Booking {
 }
 
 model Room {
-  id            Int       @id @default(autoincrement())
-  type          String    @unique
-  price         Decimal
-  avaible_units Int
-  Booking       Booking[]
+  id                Int                 @id @default(autoincrement())
+  type              String              @unique
+  price             Decimal
+  avaible_units     Int
+  Booking           Booking[]
+  CommentAvaliation CommentAvaliation[]
 
   @@map("rooms")
 }
@@ -94,4 +97,16 @@ model WorkerRole {
   Worker Worker[]
 
   @@map("workers_roles")
+}
+
+model CommentAvaliation {
+  id          Int    @id @default(autoincrement())
+  description String
+  avaliation  Int
+  room        Room   @relation(fields: [room_id], references: [id])
+  room_id     Int
+  user        User   @relation(fields: [user_id], references: [id])
+  user_id     Int
+
+  @@map("comments_avaliation")
 }
