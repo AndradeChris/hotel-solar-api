@@ -5,6 +5,7 @@ import user from './user'
 import booking from './booking'
 import workerSignUp from './workerSignUp'
 import workerLogin from './workerLogin'
+import comment from './comment'
 
 const routes = (app) => {
     app.route('/').get((req: Request, res: Response) => {
@@ -17,6 +18,7 @@ const routes = (app) => {
         login,
         user,
         booking,
+        comment,
         workerSignUp,
         workerLogin
     )
